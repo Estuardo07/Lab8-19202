@@ -42,63 +42,66 @@ let calculator = {
   },
 
   bindButtons() {
-    const buttons = document.querySelectorAll('.calculator button');
     const mapKeys = calculator.data.mapKeys;
-    Array.from(buttons).forEach((button) => {
-      button.addEventListener('click', (event) => {
-        const keycode = event.target.dataset.keycode;
-        if (mapKeys[keycode]) {
-          this.processUserInput(mapKeys[keycode]);
-          this.activateButtonWithKeypress(keycode);
-        }
-      });
+    const buttons = document.querySelectorAll('.calculator button');
+
+    buttons.forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const keycode = event.target.dataset.keycode;
+            if (mapKeys[keycode]) {
+                // Verifica si la tecla ya está activa para evitar duplicados
+                const isActive = button.classList.contains('active');
+                if (!isActive || (isActive && mapKeys[keycode].type !== 'operation')) {
+                    this.processUserInput(mapKeys[keycode]);
+                }
+            }
+        });
     });
-  },
+},
   
   bindKeyboard() {
     document.addEventListener('keydown', (event) => {
-      const mapKeys = calculator.data.mapKeys;
-      let key = event.key;
-      let code = event.code;
-  
-      // Mapea las teclas específicas que necesitas
-      if (key === '7' && event.shiftKey) {
-        key = '/';
-      }
-  
-      const keyMappings = {
-        '0': '48',
-        '1': '49',
-        '2': '50',
-        '3': '51',
-        '4': '52',
-        '5': '53',
-        '6': '54',
-        '7': '55',
-        '8': '56',
-        '9': '57',
-        '.': '190',
-        '%': '88',
-        '/': '47',
-        '*': '221',
-        '-': '189',
-        '+': '187',
-        'c': '67',
-        'Enter': '13',
-        'Backspace': '8',
-        't': '84'
-      };
-  
-      if (keyMappings[key]) {
-        const keyCode = keyMappings[key];
-        if (mapKeys[keyCode]) {
-          event.preventDefault();  // Evita la ejecución predeterminada del evento
-          this.processUserInput(mapKeys[keyCode]);
-          this.activateButtonWithKeypress(keyCode);
+        const keyCode = event.key;
+        
+        // Mapea las teclas específicas que necesitas
+        const keyMappings = {
+            '0': '48',
+            '1': '49',
+            '2': '50',
+            '3': '51',
+            '4': '52',
+            '5': '53',
+            '6': '54',
+            '7': '55',
+            '8': '56',
+            '9': '57',
+            '.': '190',
+            '%': '88',
+            '/': '47',
+            '*': '221',
+            '-': '189',
+            '+': '187',
+            'c': '67',
+            'Enter': '13',
+            'Backspace': '8',
+            't': '84'
+        };
+
+        if (keyMappings[keyCode]) {
+            const mappedKeyCode = keyMappings[keyCode];
+            if (this.data.mapKeys[mappedKeyCode]) {
+                event.preventDefault();  // Evita la ejecución predeterminada del evento
+
+                // Verifica si la tecla ya está activa para evitar duplicados
+                const isActive = document.querySelector(`.calculator button[data-keycode="${mappedKeyCode}"]`).classList.contains('active');
+                if (!isActive) {
+                    this.processUserInput(this.data.mapKeys[mappedKeyCode]);
+                    this.activateButtonWithKeypress(mappedKeyCode);
+                }
+            }
         }
-      }
     });
-  },   
+},  
 
   blinkDisplay () {
     const blinkDisplay = document.querySelector('.calculator-display');
